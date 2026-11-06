@@ -1,1 +1,5 @@
 node_modules
+
+# Secretos y archivos generados (no subir)
+.env
+*.tar

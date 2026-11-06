@@ -274,7 +274,7 @@ export const backup = async (req, res) => {
         // Comando para realizar el backup
         const comando = `pg_dump -U postgres -d ActiGest -F tar -f ${nombreArchivo}`;
         // Establecer la variable de entorno PGPASSWORD con el valor de tu contraseña
-        process.env.PGPASSWORD = 'Admin123';
+        process.env.PGPASSWORD = process.env.DB_PASSWORD;
 
         await consul.query('INSERT INTO backup (archivo, propietario,fecha) VALUES ($1, $2,$3)', [nombreArchivo, ci,fecha]);
 
@@ -317,7 +317,7 @@ function realizarRestauracion(archivoBackup) {
     const comando = `pg_restore -U postgres -d ActiGest ${archivoBackup}`;
 
     // Establecer la variable de entorno PGPASSWORD con el valor de tu contraseña
-    process.env.PGPASSWORD = 'Admin123';
+    process.env.PGPASSWORD = process.env.DB_PASSWORD;
 
     exec(comando, (error, stdout, stderr) => {
         if (error) {

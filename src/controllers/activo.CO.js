@@ -9,7 +9,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const oneSignalClient = new pkg.Client({
-    app: { appAuthKey: 'NmM2ZDJmZGEtZmNlMC00NTY0LWE1NWEtMWU4NzA5OTFhZjY4', appId: '97009778-a5ce-4994-bf86-bd499137d95f' }
+    app: { appAuthKey: process.env.ONESIGNAL_API_KEY, appId: process.env.ONESIGNAL_APP_ID }
 });
 
 export const createActivo = async (req, res) => {
@@ -21,7 +21,7 @@ export const createActivo = async (req, res) => {
             consul.query('INSERT INTO activoFijo (id,descripcion, diaCompra, costo, lugarCompra, marca, modelo, serial, foto) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)', [id, descripcion, diaCompra, costo, lugarCompra, marca, modelo, serial, req.file.filename])
         }
         const message = {
-            app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+            app_id: process.env.ONESIGNAL_APP_ID,
             contents: { en: `Se ha creado un nuevo activo fijo: ${req.body.id} ${req.body.descripcion}` },
             included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
         };
@@ -37,7 +37,7 @@ export const createActivo = async (req, res) => {
 const sendNotification = (data) => {
     const headers = {
         "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "Basic NmM2ZDJmZGEtZmNlMC00NTY0LWE1NWEtMWU4NzA5OTFhZjY4"
+        "Authorization": `Basic ${process.env.ONESIGNAL_API_KEY}`
     };
 
     const options = {
@@ -119,7 +119,7 @@ export const deletegarantia = async (req, res) => {
     try {
         await consul.query('DELETE FROM garantia WHERE id = $1', [req.params.id]);
         const message = {
-            app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+            app_id: process.env.ONESIGNAL_APP_ID,
             contents: { en: `Se eliminó una garantía para el activo fijo : ${req.params.id}` },
             included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
         };
@@ -216,7 +216,7 @@ export const getActivobySerial = async (req, res) => {
 
 export const updateActivo = async (req, res) => {
     try {
-        const { descripcion, diaCompra, costo, lugarCompra, marca, modelo, serial} = req.body;
+        const { descripcion, diaCompra, costo, lugarCompra, marca, modelo, serial, culpable } = req.body;
         console.log(req.body)
         console.log(req.file)
         if (req.file == undefined) {
@@ -225,7 +225,7 @@ export const updateActivo = async (req, res) => {
              await consul.query('UPDATE activofijo SET descripcion=$1, diaCompra=$2, costo=$3, lugarCompra=$4, marca=$5, modelo=$6, serial=$7, foto=$8 WHERE id = $9', [descripcion, diaCompra, costo, lugarCompra, marca, modelo, serial, req.file.filename, req.params.id]);
         }
         const message = {
-            app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+            app_id: process.env.ONESIGNAL_APP_ID,
             contents: { en: `Se ha actualizado el activo fijo: ${req.params.id} ${req.body.descripcion}` },
             included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
         };
@@ -248,7 +248,7 @@ export const deleteActivo = async (req, res) => {
         const resp = await consul.query('DELETE FROM activoFijo WHERE id = $1', [req.params.id])
 
         const message = {
-            app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+            app_id: process.env.ONESIGNAL_APP_ID,
             contents: { en: `Se ha eliminado un activo fijo con ID : ${req.params.id}` },
             included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
         };
@@ -264,7 +264,7 @@ export const createReserva = async (req, res) => {
         console.log(req.body)
         await consul.query('INSERT INTO reserva (idActivoFijo, ciPersona, fecha, descripcion) VALUES ($1,$2,$3,$4)', [idActivoFijo, ciPersona, fecha, descripcion])
         const message = {
-            app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+            app_id: process.env.ONESIGNAL_APP_ID,
             contents: { en: `Se ha creado una reserva del activo fijo : ${req.body.idActivoFijo} ${req.body.descripcion}` },
             included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
         };
@@ -279,7 +279,7 @@ export const deleteReserva = async (req, res) => {
         await consul.query('DELETE FROM reserva WHERE idActivoFijo = $1', [req.params.id]);
 
         const message = {
-            app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+            app_id: process.env.ONESIGNAL_APP_ID,
             contents: { en: `Se ha eliminado una reserva del activo fijo con ID : ${req.params.id}` },
             included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
         };
@@ -294,7 +294,7 @@ export const createGarantia = async (req, res) => {
         const { id, caducidad, descripcion, adquirido } = req.body
         await consul.query('INSERT INTO garantia (activo_id, descripcion, caducidad, adquirido) VALUES ($1,$2,$3,$4)', [id, descripcion, caducidad, adquirido])
         const message = {
-            app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+            app_id: process.env.ONESIGNAL_APP_ID,
             contents: { en: `Se ha creado una garantia del activo fijo : ${req.body.id} ${req.body.descripcion}` },
             included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
         };
@@ -321,7 +321,7 @@ export const updateReserva = async (req, res) => {
         await consul.query('UPDATE reserva SET idactivofijo=$1, cipersona=$2, fecha=$3, descripcion=$4 WHERE id = $5', [idactivofijo, cipersona, fecha, descripcion, req.params.id]);
 
         const message = {
-            app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+            app_id: process.env.ONESIGNAL_APP_ID,
             contents: { en: `Se ha actualizado una reserva del activo fijo : ${req.body.idactivofijo} ${req.body.descripcion}` },
             included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
         };

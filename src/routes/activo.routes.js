@@ -37,6 +37,11 @@ activo.get('/api/acti/:id', getActivobyID)
 
 activo.get('/api/actiDep/:id', getdeprebyID)
 
+// Rutas fijas antes de las que llevan :id, para que Express no las confunda con un ID
+activo.post('/api/acti/res', createReserva)
+activo.post('/api/acti/gar', createGarantia)
+activo.delete('/api/acti/gar/:id', deletegarantia)
+activo.get('/api/actiCM',getcantidadM)
 activo.post('/api/acti/depre', AñadirDepre)
 
 activo.post('/api/acti/rev', AñadirReva)
@@ -66,18 +71,14 @@ activo.post('/api/acti/:id',upload.single('img'), updateActivo)
 
 activo.delete('/api/acti/:id', deleteActivo)
 
-activo.post('/api/acti/res', createReserva)
 
 
 activo.delete('/api/res/:id', deleteReserva)
 
-activo.post('/api/acti/gar', createGarantia)
 
-activo.delete('/api/acti/gar/:id', deletegarantia)
 
 activo.get('/api/res', getReservas)
 
-activo.get('/api/actiCM',getcantidadM)
 
 activo.put('/api/res/:id', updateReserva)
 

@@ -6,7 +6,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const oneSignalClient = new pkg.Client({
-    app: { appAuthKey: 'NmM2ZDJmZGEtZmNlMC00NTY0LWE1NWEtMWU4NzA5OTFhZjY4', appId: '97009778-a5ce-4994-bf86-bd499137d95f' }
+    app: { appAuthKey: process.env.ONESIGNAL_API_KEY, appId: process.env.ONESIGNAL_APP_ID }
 });
 export const getMantenimientos = async (req, res) => {
     try {
@@ -19,10 +19,10 @@ export const getMantenimientos = async (req, res) => {
 
 export const createMantenimiento = async (req, res) => {
     try {
-        const { idaf,titulo, descripcion, fechaInicio, responsable,costo, idestado} = req.body
+        const { idaf,titulo, descripcion, fechaInicio, responsable,costo, idestado, culpable } = req.body
         consul.query('INSERT INTO mantenimiento (idaf,titulo, descripcion, fechaInicio, responsable,costo, idestado) VALUES ($1,$2,$3,$4,$5,$6,$7)', [idaf,titulo, descripcion, fechaInicio, responsable,costo, idestado])
         const message = { 
-            app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+            app_id: process.env.ONESIGNAL_APP_ID,
             contents: { en: `Se ha creado un mantenimiento para el activo fijo: ${req.body.idaf} ${req.body.descripcion}` },
             included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
           };
@@ -40,10 +40,10 @@ export const createMantenimiento = async (req, res) => {
 
 export const updateMantenimiento = async (req, res) => {
     try {
-      const { idaf,titulo, descripcion, fechaInicio, responsable,costo, idestado } = req.body;
+      const { idaf,titulo, descripcion, fechaInicio, responsable,costo, idestado, culpable } = req.body;
       await consul.query('UPDATE mantenimiento SET idaf=$1, titulo=$2, descripcion=$3, fechaInicio=$4, responsable=$5, costo=$6, idestado=$7 WHERE id = $8', [idaf,titulo, descripcion, fechaInicio, responsable,costo, idestado, req.params.id]);
       const message = { 
-        app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+        app_id: process.env.ONESIGNAL_APP_ID,
         contents: { en: `Se actualizó un mantenimiento para el activo fijo: ${req.body.idaf} ${req.body.descripcion}` },
         included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
       };
@@ -59,9 +59,10 @@ export const updateMantenimiento = async (req, res) => {
 
 export const deleteMantenimiento = async (req,res) =>{
     try {
+        const { culpable } = req.body
         const resp = await consul.query('DELETE FROM mantenimiento WHERE id = $1',[req.params.id])
         const message = { 
-            app_id: '97009778-a5ce-4994-bf86-bd499137d95f',
+            app_id: process.env.ONESIGNAL_APP_ID,
             contents: { en: `Se eliminó un mantenimiento ID: ${req.params.id}` },
             included_segments: ['All'] // Enviar a todos los segmentos (todos los usuarios suscritos)
           };
@@ -89,7 +90,7 @@ export const getMantF = async (req, res) => {
 const sendNotification = (data) => {
     const headers = {
         "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "Basic NmM2ZDJmZGEtZmNlMC00NTY0LWE1NWEtMWU4NzA5OTFhZjY4"
+        "Authorization": `Basic ${process.env.ONESIGNAL_API_KEY}`
     };
 
     const options = {
